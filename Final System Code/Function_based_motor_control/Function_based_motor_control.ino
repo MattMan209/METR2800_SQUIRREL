@@ -1,36 +1,36 @@
 // ======= MOTOR CONTROL PINS =======
 // Front Left Motor
-const int FL_IN1 = 22;
+const int FL_IN1 = 25;
 const int FL_IN2 = 23;
-const int FL_PWM = 9;   // PWM capable
+const int FL_PWM = 10;   // PWM capable
 
 // Front Right Motor
-const int FR_IN1 = 24;
-const int FR_IN2 = 25;
-const int FR_PWM = 10;  // PWM capable
+const int FR_IN1 = 29;
+const int FR_IN2 = 31;
+const int FR_PWM = 11;  // PWM capable
 
 // Rear Left Motor
-const int RL_IN1 = 26;
-const int RL_IN2 = 27;
-const int RL_PWM = 11;  // PWM capable
+const int RL_IN1 = 47;
+const int RL_IN2 = 45;
+const int RL_PWM = 13;  // PWM capable
 
 // Rear Right Motor
-const int RR_IN1 = 28;
-const int RR_IN2 = 29;
-const int RR_PWM = 5;   // PWM capable (not pin 13)
+const int RR_IN1 = 51;
+const int RR_IN2 = 53;
+const int RR_PWM = 12;   // PWM capable (not pin 13)
 
 // ======= ENCODER PINS (UNIQUE + INTERRUPT CAPABLE - MEGA) =======
-const int FL_ENCA = 18;  // INT5
-const int FL_ENCB = 19;
+const int FL_ENCA = 21;  // INT5
+const int FL_ENCB = 20;
 
-const int FR_ENCA = 20;  // INT3
-const int FR_ENCB = 21;
+const int FR_ENCA = 19;  // INT3
+const int FR_ENCB = 18;
 
 const int RL_ENCA = 2;   // INT4
 const int RL_ENCB = 3;
 
-const int RR_ENCA = 3;   // INT1
-const int RR_ENCB = 4;
+const int RR_ENCA =22;   // INT1
+const int RR_ENCB = 24; // THESE PINS DO NOTHING, WE JUST DONT HAVE AN ENCODER FOR THE FOURTH MOTOR
 
 // ======= ENCODER COUNTS =======
 volatile long FL_forwardCount = 0;

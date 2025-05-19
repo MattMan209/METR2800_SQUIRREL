@@ -1,7 +1,7 @@
 #define PWM_1 13
 #define PWM_2 12
 #define PWM_3 11
-#define PWM_4 8
+#define PWM_4 10
 
 
 void setup() {
@@ -12,10 +12,10 @@ void setup() {
   pinMode(PWM_3,OUTPUT);
   pinMode(PWM_4,OUTPUT);
   Serial.println("Outpus set");
-  analogWrite(PWM_1, 100);
-  analogWrite(PWM_2, 100);
-  analogWrite(PWM_3, 100);
-  analogWrite(PWM_4, 100);
+  analogWrite(PWM_1, 200);
+  analogWrite(PWM_2, 200);
+  analogWrite(PWM_3, 200);
+  analogWrite(PWM_4, 200);
   Serial.println("PWM Set");
 
   pinMode(36, OUTPUT);

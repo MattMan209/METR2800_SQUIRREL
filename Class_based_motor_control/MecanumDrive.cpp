@@ -14,8 +14,8 @@ void MecanumDrive::init() {
 void MecanumDrive::setSpeed(float speed) {
   bool forward = speed >= 0;
   int pwmVal = constrain(abs(speed), 0, 255);
-  digitalWrite(_in1, forward ? HIGH : LOW);
-  digitalWrite(_in2, forward ? LOW : HIGH);
+  digitalWrite(_in1, forward ? LOW : HIGH);
+  digitalWrite(_in2, forward ? HIGH : LOW);
   analogWrite(_pwm, pwmVal);
 }
 

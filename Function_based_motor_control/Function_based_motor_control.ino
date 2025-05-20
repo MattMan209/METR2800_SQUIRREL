@@ -1,23 +1,26 @@
 // ======= MOTOR CONTROL PINS =======
+
+const int stby = 27;
+const int stby2 = 49;
 // Front Left Motor
-const int FL_IN1 = 22;
+const int FL_IN1 = 25;
 const int FL_IN2 = 23;
-const int FL_PWM = 9;   // PWM capable
+const int FL_PWM = 10;   // PWM capable
 
 // Front Right Motor
-const int FR_IN1 = 24;
-const int FR_IN2 = 25;
-const int FR_PWM = 10;  // PWM capable
+const int FR_IN1 = 29;
+const int FR_IN2 = 31;
+const int FR_PWM = 11;  // PWM capable
 
 // Rear Left Motor
-const int RL_IN1 = 26;
-const int RL_IN2 = 27;
-const int RL_PWM = 11;  // PWM capable
+const int RL_IN1 = 47;
+const int RL_IN2 = 45;
+const int RL_PWM = 13;  // PWM capable
 
 // Rear Right Motor
-const int RR_IN1 = 28;
-const int RR_IN2 = 29;
-const int RR_PWM = 5;   // PWM capable (not pin 13)
+const int RR_IN1 = 51;
+const int RR_IN2 = 53;
+const int RR_PWM = 12;   // PWM capable (not pin 13)
 
 // ======= ENCODER PINS (UNIQUE + INTERRUPT CAPABLE - MEGA) =======
 const int FL_ENCA = 18;  // INT5
@@ -58,6 +61,11 @@ void setup() {
   pinMode(RL_ENCA, INPUT); pinMode(RL_ENCB, INPUT);
   pinMode(RR_ENCA, INPUT); pinMode(RR_ENCB, INPUT);
 
+  // STBY pins
+  digitalWrite(stby, HIGH);
+  digitalWrite(stby2, HIGH);
+
+
   // Attach interrupts for each encoder (on ENCA pin)
   attachInterrupt(digitalPinToInterrupt(FL_ENCA), FL_encoderISR, RISING);
   attachInterrupt(digitalPinToInterrupt(FR_ENCA), FR_encoderISR, RISING);
@@ -69,13 +77,20 @@ void setup() {
 
 void loop() {
   // Move at 90° (right) with full translational speed, no rotation
-  move(90, 200, 0);
-  delay(2000);
+ // move(90, 200, 0);
+  //delay(2000);
 
   // Move at 0° (forward) with rotation clockwise
-  move(0, 150, 50);
-  delay(2000);
+ // move(0,75,200);
+  move(0, 200, 0);
+  delay(5000);
+  move(45, 150, 0);
+  delay(5000);
+  move(0, 0, 0);
+  while(1){};
 
+
+  /*
   // Move backward with counter-clockwise rotation
   move(180, 150, -50);
   delay(2000);
@@ -83,6 +98,7 @@ void loop() {
   // Stop
   move(0, 0, 0);
   delay(1000);
+  */
 }
 
 // ======= MOVEMENT LOGIC USING TB6612FNG =======
@@ -110,6 +126,9 @@ void move(float angle_deg, float max_wheel_speed, float rotation_speed) {
   setMotor(RL_IN1, RL_IN2, RL_PWM, (int)abs(rl), rl >= 0);
   setMotor(RR_IN1, RR_IN2, RR_PWM, (int)abs(rr), rr >= 0);
 }
+
+
+
 
 void setMotor(int in1, int in2, int pwm, int speed, bool forward) {
   digitalWrite(in1, forward ? HIGH : LOW);

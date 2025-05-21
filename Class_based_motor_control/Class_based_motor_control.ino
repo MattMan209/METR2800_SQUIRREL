@@ -33,11 +33,9 @@ void setup() {
 
 void loop() {
   
-  move(0, 75,0);
-  delay(5000);
-  move(0,0,0);
+  move(-90, 75,0);
   delay(1000);
-
+  move(0,0,0);
 
   while(1){};
 }

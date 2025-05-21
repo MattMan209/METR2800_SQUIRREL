@@ -1,4 +1,5 @@
 #include "MecanumDrive.h"
+#include <Servo.h>
 // Instantiate wheel objects
 MecanumDrive frontLeft(23, 25, 10, 18, 19);
 MecanumDrive frontRight(31, 29, 11, 20, 21);
@@ -13,29 +14,65 @@ void FR_ISR() { frontRight.updateEncoder(); }
 void RL_ISR() { rearLeft.updateEncoder(); }
 void RR_ISR() { rearRight.updateEncoder(); }
 
+// Servo definitions
+const int servo1Pin = 5;  // control pin sweep
+const int servo2Pin = 8;  // control pin ramp
+const int stopVal = 90;   // stop value for ramp servo
+Servo sweep_servo;
+Servo ramp_servo;
+
+
 void setup() {
   Serial.begin(115200);
+
+//Wheel setup
+  // Initialise wheels
   frontLeft.init();
   frontRight.init();
   rearLeft.init();
   rearRight.init();
-
+  
+  // STBY pins
+  digitalWrite(stby, HIGH);
+  digitalWrite(stby2, HIGH);
+  
+  // Attatch interrupts (not included for DR4)
   attachInterrupt(digitalPinToInterrupt(18), FL_ISR, RISING);
   attachInterrupt(digitalPinToInterrupt(20), FR_ISR, RISING);
   attachInterrupt(digitalPinToInterrupt(2), RL_ISR, RISING);
   attachInterrupt(digitalPinToInterrupt(18), RR_ISR, RISING); // Adjust pin if needed
 
-// STBY pins
-  digitalWrite(stby, HIGH);
-  digitalWrite(stby2, HIGH);
+//Servo setup
+
+  sweep_servo.attach(servo1Pin);
+  ramp_servo.attach(servo2Pin);
+
+  // Initial positions
+  sweep_servo.write(0);
+  
+  Serial.println("Setup complete");
+
 }
 
 void loop() {
   
   move(0, 75,0);
-  delay(5000);
+  delay(10000); // Time to get to balls
   move(0,0,0);
-  delay(1000);
+  delay(500); // Safety delay (Small delay to reduce rocking/inertia)
+  sweep_servo.write(110); // Drop sweep arm
+  move(0,75,0); 
+  delay(5000); // Time to edge of track
+  move(-90, 75,0);
+  delay(15000); // Time down long side
+  move(0,0,0); 
+  delay(500); // Safety delay
+  move(180,75,0);
+  delay(3000); // Time to deposit zone
+  move(0,0,0);
+  
+  //Actuate ramp (position unknown)
+  
 
 
   while(1){};

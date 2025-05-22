@@ -1,27 +1,63 @@
 #include <Servo.h>
 Servo ramp_servo;
+Servo arm_servo;
 
 int count = 0;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  ramp_servo.attach(8);
-  Serial.println("Steup complete");
+  ramp_servo.attach(5);
+  arm_servo.attach(4);
   delay(200);
-
+  arm_servo.write(180);           //initial 0 
+  ramp_servo.write(90);
+  Serial.println("THe arm is at:");
+  Serial.println(ramp_servo.read());
+  ramp_servo.write(100);
+  delay(5000);
+  ramp_servo.write(90);
+  
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  if(count <5){
-    ramp_servo.write(80);
-    delay(2000);
-    ramp_servo.write(90);
-    delay(2000);
-    ramp_servo.write(96);
-    delay(2000);
-    count++;
-  }
+  Serial.println("run loop");
+  /*arm_servo.write(200);    // Moves the sweep arm down
+  delay(3000);
+  arm_servo.write(80); 
+  delay(3000);
+  arm_servo.write(180); 
+  ramp_servo.write(80);*/
+
+  ramp_servo.write(80);
+  delay(3000);
+  ramp_servo.write(90);
+
   
+  while(1){};
+  /*
+  delay(3000);
+  ramp_servo.write(100);
+  delay(3000);
+  ramp_servo.write(90);
+  delay(3000);
+  
+  delay(2000);
+  ServoDown();
+  delay(2000);
+  arm_servo.write(0);
+  delay(3000);
+  ServoDown();
+  arm_servo.write(0);
+  while (1){}
+  */
+  
+}
+
+void ServoDown() {
+  for(int pos = 0; pos <= 110; pos += 1) { // goes from 0 degrees to 110 degrees  
+    arm_servo.write(pos);              // tell servo to go to position in variable 'pos'
+    delay(5);                       //550ms total round to 560ms with calls
+  }
 }

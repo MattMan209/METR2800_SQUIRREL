@@ -15,8 +15,8 @@ void RL_ISR() { rearLeft.updateEncoder(); }
 void RR_ISR() { rearRight.updateEncoder(); }
 
 // Servo definitions
-const int servo1Pin = 5;  // control pin sweep
-const int servo2Pin = 8;  // control pin ramp
+const int servo1Pin = 4;  // control pin sweep
+const int servo2Pin = 5;  // control pin ramp
 const int stopVal = 90;   // stop value for ramp servo
 Servo sweep_servo;
 Servo ramp_servo;
@@ -48,7 +48,8 @@ void setup() {
   ramp_servo.attach(servo2Pin);
 
   // Initial positions
-  sweep_servo.write(0);
+  sweep_servo.write(180);
+  ramp_servo.write(90);
   
   Serial.println("Setup complete");
 
@@ -56,21 +57,26 @@ void setup() {
 
 void loop() {
   
-  move(0, 75,0);
-  delay(10000); // Time to get to balls
+  Serial.println("Forward");
+  move(0,100,0);
+  delay(5050);
+  sweep_servo.write(95);
+  delay(500);
+  sweep_servo.write(70);
+  delay(800);  // This must make a total of 6350 with previous delay
   move(0,0,0);
-  delay(500); // Safety delay (Small delay to reduce rocking/inertia)
-  sweep_servo.write(110); // Drop sweep arm
-  move(0,75,0); 
-  delay(5000); // Time to edge of track
-  move(-90, 75,0);
-  delay(15000); // Time down long side
-  move(0,0,0); 
-  delay(500); // Safety delay
-  move(180,75,0);
-  delay(3000); // Time to deposit zone
-  move(0,0,0);
-  
+  ramp_servo.write(80); //This might need to be 100. Does 90 need to be called after?
+  delay(500);    // safety delay
+  Serial.println("left");
+  move(-90,100,0);
+  delay(5000);
+  /*
+  Serial.println("down left");
+  move(180,100,0);
+  delay(4000);
+  move(0, 0, 0);
+  ramp_servo.write(100); // This might nee to be 80
+  */
   //Actuate ramp (position unknown)
   
 
@@ -79,36 +85,20 @@ void loop() {
 }
 
 void move(float angle_deg, float max_wheel_speed, float rotation_speed) {
-  float fl = 0;
-  float fr = 0;
-  float rl = 0;
-  float rr = 0;
-  float scale = 0;
-  if (angle_deg  = -90){
-    fl = -max_wheel_speed;
-    fr = max_wheel_speed;
-    rl = max_wheel_speed;
-    rr = -max_wheel_speed;
-  }
-  else if (angle_deg = 90){
-    fl = max_wheel_speed;
-    fr = -max_wheel_speed;
-    rl = -max_wheel_speed;
-    rr = max_wheel_speed;
-  }
-  else{
-    float angle_rad = radians(angle_deg);
-    float vx = cos(angle_rad);
-    float vy = sin(angle_rad);
 
-    fl = vy + vx - rotation_speed;
-    fr = vy - vx + rotation_speed;
-    rl = vy - vx - rotation_speed;
-    rr = vy + vx + rotation_speed;
+  float angle_rad = radians(angle_deg);
+  float vx = cos(angle_rad);
+  float vy = sin(angle_rad);
 
-    float max_raw = max(max(abs(fl), abs(fr)), max(abs(rl), abs(rr)));
-    scale = (max_raw > 0) ? (max_wheel_speed / max_raw) : 0;
-  }
+  // Unscaled wheel speeds with rotation
+  float fl = vy + vx - rotation_speed;
+  float fr = vy - vx + rotation_speed;
+  float rl = vy - vx - rotation_speed;
+  float rr = vy + vx + rotation_speed;
+
+  float max_raw = max(max(abs(fl), abs(fr)), max(abs(rl), abs(rr)));
+  float scale = (max_raw > 0) ? (max_wheel_speed / max_raw) : 0;
+
   
   frontLeft.setSpeed(fl * scale);
   frontRight.setSpeed(fr * scale);

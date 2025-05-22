@@ -11,27 +11,20 @@ void setup() {
   delay(200);
   arm_servo.write(180);           //initial 0 
   ramp_servo.write(90);
-  Serial.println("THe arm is at:");
-  Serial.println(ramp_servo.read());
-  ramp_servo.write(100);
-  delay(5000);
-  ramp_servo.write(90);
-  
+ 
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   Serial.println("run loop");
-  /*arm_servo.write(200);    // Moves the sweep arm down
-  delay(3000);
-  arm_servo.write(80); 
-  delay(3000);
-  arm_servo.write(180); 
-  ramp_servo.write(80);*/
 
-  ramp_servo.write(80);
-  delay(3000);
+  ramp_servo.write(50);
+  delay(2000);
+  ramp_servo.write(90);
+  delay(2000);
+  ramp_servo.write(120);
+  delay(2000);
   ramp_servo.write(90);
 
   

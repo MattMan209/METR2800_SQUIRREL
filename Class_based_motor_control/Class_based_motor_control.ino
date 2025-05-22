@@ -32,45 +32,40 @@ void setup() {
 }
 
 void loop() {
-  
-  move(-90, 75,0);
+  move(0, 75,0);
+  delay(2000);
+  move(0,0,0);
   delay(1000);
+  move(-90,75,0);
+  delay(2000);
+  move(0,0,0);
+  delay(1000);
+  move(90,75,0);
+  delay(2000);
+  move(0,0,0);
+  delay(1000);
+  move(180,75,0);
+  delay(2000);
   move(0,0,0);
 
   while(1){};
 }
 
 void move(float angle_deg, float max_wheel_speed, float rotation_speed) {
-  float fl = 0;
-  float fr = 0;
-  float rl = 0;
-  float rr = 0;
-  float scale = 0;
-  if (angle_deg  = -90){
-    fl = -max_wheel_speed;
-    fr = max_wheel_speed;
-    rl = max_wheel_speed;
-    rr = -max_wheel_speed;
-  }
-  else if (angle_deg = 90){
-    fl = max_wheel_speed;
-    fr = -max_wheel_speed;
-    rl = -max_wheel_speed;
-    rr = max_wheel_speed;
-  }
-  else{
-    float angle_rad = radians(angle_deg);
-    float vx = cos(angle_rad);
-    float vy = sin(angle_rad);
 
-    fl = vy + vx - rotation_speed;
-    fr = vy - vx + rotation_speed;
-    rl = vy - vx - rotation_speed;
-    rr = vy + vx + rotation_speed;
+  float angle_rad = radians(angle_deg);
+  float vx = cos(angle_rad);
+  float vy = sin(angle_rad);
 
-    float max_raw = max(max(abs(fl), abs(fr)), max(abs(rl), abs(rr)));
-    scale = (max_raw > 0) ? (max_wheel_speed / max_raw) : 0;
-  }
+  // Unscaled wheel speeds with rotation
+  float fl = vy + vx - rotation_speed;
+  float fr = vy - vx + rotation_speed;
+  float rl = vy - vx - rotation_speed;
+  float rr = vy + vx + rotation_speed;
+
+  float max_raw = max(max(abs(fl), abs(fr)), max(abs(rl), abs(rr)));
+  float scale = (max_raw > 0) ? (max_wheel_speed / max_raw) : 0;
+
   
   frontLeft.setSpeed(fl * scale);
   frontRight.setSpeed(fr * scale);

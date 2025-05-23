@@ -1,5 +1,6 @@
 #include "MecanumDrive.h"
 #include <Servo.h>
+
 // Instantiate wheel objects
 MecanumDrive frontLeft(23, 25, 10, 18, 19);
 MecanumDrive frontRight(31, 29, 11, 20, 21);
@@ -20,6 +21,12 @@ const int servo2Pin = 5;  // control pin ramp
 const int stopVal = 90;   // stop value for ramp servo
 Servo sweep_servo;
 Servo ramp_servo;
+
+//Sensor Pin
+const int FRPin = A13; //Front Right
+const int BRPin = A12; //Back Right
+const int BLPin = A11; //Back Left
+const int FLPin = A10; //Front Left
 
 
 void setup() {
@@ -42,10 +49,15 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(2), RL_ISR, RISING);
   attachInterrupt(digitalPinToInterrupt(18), RR_ISR, RISING); // Adjust pin if needed
 
-//Servo setup
-
+  //Servo setup
   sweep_servo.attach(servo1Pin);
   ramp_servo.attach(servo2Pin);
+
+  //Limit Switch Setup use internal pullup
+  pinMode(FRPin, INPUT_PULLUP);
+  pinMode(BRPin, INPUT_PULLUP);
+  pinMode(BLPin, INPUT_PULLUP);
+  pinMode(FLPin, INPUT_PULLUP);
 
   // Initial positions
   sweep_servo.write(180);
@@ -56,6 +68,21 @@ void setup() {
 }
 
 void loop() {
+  //Testing Edge Tracking
+  //while(1){};
+  
+  move(0,0,0);
+  delay(3000);
+  //Run track edge 500 times   
+  for (int i = 0; i < 500; i++){
+    edgeTrack();
+    Serial.print(i);
+  }
+
+  move(0,0,0);
+  while(1){};
+
+
   
   Serial.println("Forward");
   move(0,100,0);
@@ -105,3 +132,108 @@ void move(float angle_deg, float max_wheel_speed, float rotation_speed) {
   rearLeft.setSpeed(rl * scale);
   rearRight.setSpeed(rr * scale);
 }
+
+
+void sensorRead(){
+  //Prints to serial limit switch states 1000 times
+  //Used for testing and debugging
+  for (int i = 0; i < 1000; i++){
+    int FRState = digitalRead(FRPin); //FR
+    int BRState = digitalRead(BRPin); //BR
+    int BLState = digitalRead(BLPin); //BL
+    int FLState = digitalRead(FLPin); //FL
+
+    Serial.print(FRState);
+    Serial.print(BRState);
+    Serial.print(FLState);
+    Serial.print(BLState);
+    Serial.println();
+    delay(10);
+
+  }
+  Serial.println("Sensor Finished");
+
+}
+
+void stopOnEdge() {
+  //Goes forward until any pins read Low(off edge)
+  int FLState = digitalRead(FLPin);
+  int BLState = digitalRead(BLPin);
+  int FRState = digitalRead(FRPin);
+  int BRState = digitalRead(BRPin);
+
+  if (FLState && BLState && FRState && BRState) {move(0,100,0);}
+  else {move(0,100,0);}
+  }
+}
+
+void edgeTrack() {
+  //Track the left Edge using limit switches
+
+  //Read sensor states
+  int FL = digitalRead(FLPin); // Front Left
+  int BL = digitalRead(BLPin); // Back Left
+  int FR = digitalRead(FRPin); // Front Right
+  int BR = digitalRead(BRPin); // Back Right
+
+  // Pair logic
+  bool leftEdge   = (FL != BL); // Edge between left switches
+  bool rightEdge  = (FR != BR); // Edge between right switches
+  bool leftOn     = (FL == HIGH && BL == HIGH);
+  bool rightOn    = (FR == HIGH && BR == HIGH);
+  bool leftOff    = (FL == LOW && BL == LOW);
+  bool rightOff   = (FR == LOW && BR == LOW);
+
+  // 1. Fully off the table: All off
+  if (leftOff && rightOff) {
+    Serial.println("Off the table: Moving right to regain edge, then stopping");
+    move(270, 60, 0); // Move right (backwards on x), slow, to get back on edge
+    delay(100);
+    return;
+  }
+
+  // 2. Perfect alignment: Both edge pairs have one pressed and one not
+  if (leftEdge && rightEdge) {
+    Serial.println("Perfect edge alignment: Moving left");
+    move(270, 100, 0);
+    delay(100);
+  }
+  // 3. Too far onto table on both sides (all pressed)
+  else if (leftOn && rightOn) {
+    Serial.println("Too far onto table: Moving left and rotating left");
+    move(270, 80, -0.6);
+    delay(100);
+  }
+  // 4. Too far onto table on left only
+  else if (leftOn) {
+    Serial.println("Left side too far on table: Moving left and rotating left");
+    move(270, 80, -0.4);
+    delay(100);
+  }
+  // 5. Too far onto table on right only
+  else if (rightOn) {
+    Serial.println("Right side too far on table: Moving left and rotating right");
+    move(270, 80, 0.4);
+    delay(100);
+  }
+  // 6. Too far off table on left only
+  else if (leftOff) {
+    Serial.println("Left side off edge: Moving left and rotating right");
+    move(270, 80, 0.6);
+    delay(100);
+  }
+  // 7. Too far off table on right only
+  else if (rightOff) {
+    Serial.println("Right side off edge: Moving left and rotating left");
+    move(270, 80, -0.6);
+    delay(100);
+  }
+  // 8. Both pairs straddling edge but not perfect (fallback correction)
+  else {
+    Serial.println("Unknown or transition state: Moving left slowly");
+    move(270, 60, 0);
+    delay(100);
+  }
+  delay(100);
+}
+

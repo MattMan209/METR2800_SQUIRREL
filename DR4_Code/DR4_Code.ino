@@ -243,7 +243,8 @@ void edgeTrackLeft() {
 }
 
 void driveLeftEdge(int cycles, int cycleDelay) {
-  //Drive along the left edge with n amount of cycles with m delay between each state check
+  //Drive along the left edge with n amount of cycles 
+  //with m delay between each state check
   for (int i = 0; i < cycles; i++){
     edgeTrackLeft();
     delay(cycleDelay);

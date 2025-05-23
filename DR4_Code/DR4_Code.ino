@@ -74,15 +74,10 @@ void loop() {
   move(0,0,0);
   delay(3000);
   //Run track edge 500 times   
-  for (int i = 0; i < 500; i++){
-    edgeTrack();
-    Serial.print(i);
-  }
+  driveLeftEdge(500, 100);
 
   move(0,0,0);
   while(1){};
-
-
   
   Serial.println("Forward");
   move(0,100,0);
@@ -90,13 +85,24 @@ void loop() {
   sweep_servo.write(95);
   delay(500);
   sweep_servo.write(70);
-  delay(800);  // This must make a total of 6350 with previous delay
+
+  stopOnEdge(); // drive forward until anylimit switch is activated. Should stop near edge
+  //delay(800);  // This must make a total of 6350 with previous delay
   move(0,0,0);
   ramp_servo.write(80); //This might need to be 100. Does 90 need to be called after?
   delay(500);    // safety delay
   Serial.println("left");
-  move(-90,100,0);
-  delay(5000);
+  //move(-90,100,0); // Drive left hard coded.
+  //delay(5000);
+
+  driveLeftEdge(500,100); //Need to change first number until right distance
+  move(0,0,0); //Stop
+  delay(500);
+  Serial.println("Drive Backwards to drop off");
+  move(180,100,0);
+  delay(3000); //Adjust to stop at deposit zone.
+  move(0,0,0);
+  
   /*
   Serial.println("down left");
   move(180,100,0);
@@ -167,73 +173,82 @@ void stopOnEdge() {
   }
 }
 
-void edgeTrack() {
+void edgeTrackLeft() {
   //Track the left Edge using limit switches
 
   //Read sensor states
   int FL = digitalRead(FLPin); // Front Left
-  int BL = digitalRead(BLPin); // Back Left
+  int RL = digitalRead(BLPin); // Back Left
   int FR = digitalRead(FRPin); // Front Right
-  int BR = digitalRead(BRPin); // Back Right
+  int RR = digitalRead(BRPin); // Back Right
 
-  // Pair logic
-  bool leftEdge   = (FL != BL); // Edge between left switches
-  bool rightEdge  = (FR != BR); // Edge between right switches
-  bool leftOn     = (FL == HIGH && BL == HIGH);
-  bool rightOn    = (FR == HIGH && BR == HIGH);
-  bool leftOff    = (FL == LOW && BL == LOW);
-  bool rightOff   = (FR == LOW && BR == LOW);
+  if (!FL && !FR && !RL && !RR) { 
+    //All on edge - Move 315degrees | No Rotation
+    //------------
+    //  |x      x|
+    //  |x      x|
+    Serial.println("All on board - Move 315degrees | No Rotation");
+    move(315,100,0);}
 
-  // 1. Fully off the table: All off
-  if (leftOff && rightOff) {
-    Serial.println("Off the table: Moving right to regain edge, then stopping");
-    move(270, 60, 0); // Move right (backwards on x), slow, to get back on edge
-    delay(100);
-    return;
-  }
+  else if (FL && !FR && !RL && !RR) { 
+    //Front Left Off - Move 247.5degrees | Anti Clockwise Slow
+    //  |o   ------
+    //------    x|
+    //  |x      x|
+    Serial.println("Front Left Off - Move 247.5degrees | Anti Clockwise Slow");
+    move(248,100,0.3);}
 
-  // 2. Perfect alignment: Both edge pairs have one pressed and one not
-  if (leftEdge && rightEdge) {
-    Serial.println("Perfect edge alignment: Moving left");
-    move(270, 100, 0);
-    delay(100);
-  }
-  // 3. Too far onto table on both sides (all pressed)
-  else if (leftOn && rightOn) {
-    Serial.println("Too far onto table: Moving left and rotating left");
-    move(270, 80, -0.6);
-    delay(100);
-  }
-  // 4. Too far onto table on left only
-  else if (leftOn) {
-    Serial.println("Left side too far on table: Moving left and rotating left");
-    move(270, 80, -0.4);
-    delay(100);
-  }
-  // 5. Too far onto table on right only
-  else if (rightOn) {
-    Serial.println("Right side too far on table: Moving left and rotating right");
-    move(270, 80, 0.4);
-    delay(100);
-  }
-  // 6. Too far off table on left only
-  else if (leftOff) {
-    Serial.println("Left side off edge: Moving left and rotating right");
-    move(270, 80, 0.6);
-    delay(100);
-  }
-  // 7. Too far off table on right only
-  else if (rightOff) {
-    Serial.println("Right side off edge: Moving left and rotating left");
-    move(270, 80, -0.6);
-    delay(100);
-  }
-  // 8. Both pairs straddling edge but not perfect (fallback correction)
+  else if (FL && FR && !RL && !RR) { 
+    //Perfectly Aligned - Move 270degrees | No Rotation
+    //  |o      o|
+    //------------
+    //  |x      x|
+    Serial.println("Perfectly Aligned - Move 270degrees | No Rotation");
+    move(270,100,0);}
+
+  else if (!FL && FR && !RL && !RR) { 
+    //Front Right Off - Move 292degrees | Clockwise Slow
+    //-------   o|
+    //  |o   --------
+    //  |x      x|
+    Serial.println("Front Right Off - Move 292degrees | Clockwise Slow");
+    move(292,100,-0.3);}
+
+  else if (FL && !FR && RL && !RR) { 
+    //All left off - Move 225 degrees | Anti Clockwise Fast
+    //  |o    -   x|
+    //  |o   -    x|
+    Serial.println("All left off - Move 225 degrees | Anti Clockwise Fast");
+    move(225,100,0.6);}
+
+  else if (!FL && FR && !RL && RR) { 
+    //All right off - Move 315 degrees | Clockwise Fast
+    //  |x   -    o|
+    //  |x    -   o|
+    Serial.println("All right off - Move 315 degrees | Clockwise Fast");
+    move(315,100,-0.6);}
+
+  else if (FL && FR && RL && RR) { 
+    //All Off - Move 225 degrees | No Rotation
+    //  |0        o|
+    //  |0        o|
+    //----------------
+    Serial.println("All Off - Move 225 degrees | No Rotation");
+    move(225,100,0);}
+  
   else {
-    Serial.println("Unknown or transition state: Moving left slowly");
-    move(270, 60, 0);
-    delay(100);
-  }
-  delay(100);
+    //Unknown Orientation - Backwards | No Rotation
+    Serial.println("Unknown Orientation - Backwards | No Rotation");
+    move(180,100,0);}
 }
 
+void driveLeftEdge(int cycles, int cycleDelay) {
+  //Drive along the left edge with n amount of cycles with m delay between each state check
+  for (int i = 0; i < cycles; i++){
+    edgeTrackLeft();
+    delay(cycleDelay);
+    Serial.print(i);
+    Serial.println();
+  }
+  move(0,0,0);
+}

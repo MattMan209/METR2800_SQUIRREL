@@ -70,6 +70,15 @@ void setup() {
 void loop() {
   //Testing Edge Tracking
   //while(1){};
+  delay(3000);
+  ramp_servo.write(110);
+  delay(1000);
+  ramp_servo.write(90);
+
+
+  sweep_servo.write(170);
+  delay(1000);
+  sweep_servo.write(70);
   
   move(0,0,0);
   delay(3000);

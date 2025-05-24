@@ -50,8 +50,8 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(18), RR_ISR, RISING); // Adjust pin if needed
 
   //Servo setup
-  sweep_servo.attach(servo1Pin);
-  ramp_servo.attach(servo2Pin);
+  sweep_servo.attach(servo2Pin);
+  ramp_servo.attach(servo1Pin);
 
   //Limit Switch Setup use internal pullup
   pinMode(FRPin, INPUT_PULLUP);
@@ -60,7 +60,7 @@ void setup() {
   pinMode(FLPin, INPUT_PULLUP);
 
   // Initial positions
-  sweep_servo.write(180);
+  sweep_servo.write(90);
   ramp_servo.write(90);
   
   Serial.println("Setup complete");

@@ -177,10 +177,10 @@ void edgeTrackLeft() {
   //Track the left Edge using limit switches
 
   //Read sensor states
-  int FL = digitalRead(FLPin); // Front Left
-  int RL = digitalRead(BLPin); // Back Left
-  int FR = digitalRead(FRPin); // Front Right
-  int RR = digitalRead(BRPin); // Back Right
+  int FL = !digitalRead(FLPin); // Front Left
+  int RL = !digitalRead(BLPin); // Back Left
+  int FR = !digitalRead(FRPin); // Front Right
+  int RR = !digitalRead(BRPin); // Back Right
 
   if (!FL && !FR && !RL && !RR) { 
     //All on edge - Move 315degrees | No Rotation
